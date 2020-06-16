@@ -1,5 +1,7 @@
 package com.springboot.microservices.limitsservices.bean;
 
+import org.springframework.stereotype.Component;
+
 public class LimitsConfiguration {
 
     private int min;
