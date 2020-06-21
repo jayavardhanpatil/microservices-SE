@@ -2,6 +2,8 @@ package com.springboot.microservices.currencyconversionservice.controller;
 
 import com.springboot.microservices.currencyconversionservice.Bean.CurrencyConverterBean;
 import com.springboot.microservices.currencyconversionservice.proxy.CurrencyConverterProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Environment.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import java.util.HashMap;
 
 @RestController
 public class CurrencyConverter {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     CurrencyConverterProxy proxy;
@@ -40,7 +44,7 @@ public class CurrencyConverter {
     public CurrencyConverterBean convertCurrencyFeign(@PathVariable String from, @PathVariable String to, @PathVariable BigDecimal quantity){
 
         CurrencyConverterBean response = proxy.retriveExchnageValue(from, to);
-
+        logger.info("{}", response);
         return new CurrencyConverterBean(response.getId(), from, to, response.getConversionController(), quantity, quantity.multiply(response.getConversionController()));
     }
 
