@@ -1,5 +1,6 @@
 package com.springboot.microservices.limitsservices.controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.springboot.microservices.limitsservices.Configuration;
 import com.springboot.microservices.limitsservices.bean.LimitsConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,6 @@ public class LimitsConfigurationController {
 
     @GetMapping("/limits")
     public LimitsConfiguration retreiveLimitsFromConfiguration(){
-        System.out.println("limits");
         return new LimitsConfiguration(configuration.getMin(),configuration.getMax());
     }
-
 }
