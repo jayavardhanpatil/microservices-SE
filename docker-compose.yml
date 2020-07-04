@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+
+  eureka-server:
+    image: eureka-server:0.0.1-SNAPSHOT
+    ports:
+    - "8761:8761"
+    restart: always
+    networks:
+      - currency-compose-network
+
+  currency-exchange-service:
+    image: currency-exchange-service:0.0.1-SNAPSHOT
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+
+    networks:
+      - currency-compose-network
+
+  currency-conversion-service:
+    image: currency-conversion-service:0.0.1-SNAPSHOT
+    ports:
+      - "8100:8100"
+    restart: always
+    depends_on:
+      - currency-exchange-service
+      - eureka-naming-server
+    networks:
+      - currency-compose-network
+
+networks:
+    currency-compose-network:
+
