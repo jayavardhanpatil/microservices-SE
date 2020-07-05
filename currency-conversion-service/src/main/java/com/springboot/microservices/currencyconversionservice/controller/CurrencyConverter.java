@@ -24,23 +24,22 @@ public class CurrencyConverter {
     @Autowired
     CurrencyConverterProxy proxy;
 
-//    @GetMapping("/currency-convertr/from/{from}/to/{to}/quantity/{quantity}")
-//    public CurrencyConverterBean convertCurrency(@PathVariable String from, @PathVariable String to, @PathVariable BigDecimal quantity){
-//
-//        System.out.println(quantity);
-//
-//        HashMap<String, String> uriVariables = new HashMap<>();
-//        uriVariables.put("from", from);
-//        uriVariables.put("to", to);
-//
-//        ResponseEntity<CurrencyConverterBean> responseEntity = new RestTemplate().getForEntity("http://localhost:8000/currency-exchnage/from/{from}/to/{to}", CurrencyConverterBean.class, uriVariables);
-//
-//        CurrencyConverterBean response = responseEntity.getBody();
-//
-//        return new CurrencyConverterBean(response.getId(), from, to, response.getConversionController(), quantity, quantity.multiply(response.getConversionController()));
-//    }
 
-    @GetMapping("/currency-convertr-feign/from/{from}/to/{to}/quantity/{quantity}")
+    @GetMapping("/currency-converter/from/{from}/to/{to}/quantity/{quantity}")
+    public CurrencyConverterBean convertCurrency(@PathVariable String from, @PathVariable String to,
+                                                  @PathVariable BigDecimal quantity) {
+
+        //LOGGER.info("Received Request to convert from {} {} to {}. ", quantity, from, to);
+
+        CurrencyConverterBean response = proxy.retriveExchnageValue(from, to);
+
+        BigDecimal convertedValue = quantity.multiply(response.getConvertedValue());
+
+        return new CurrencyConverterBean(response.getId(), from, to, response.getConversionController(), quantity,
+                convertedValue);
+    }
+
+    @GetMapping("/currency-converter-feign/from/{from}/to/{to}/quantity/{quantity}")
     public CurrencyConverterBean convertCurrencyFeign(@PathVariable String from, @PathVariable String to, @PathVariable BigDecimal quantity){
 
         CurrencyConverterBean response = proxy.retriveExchnageValue(from, to);

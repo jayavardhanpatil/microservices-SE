@@ -1,5 +1,6 @@
 package com.springboot.microservices.currencyconversionservice;
 
+
 import brave.sampler.Sampler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

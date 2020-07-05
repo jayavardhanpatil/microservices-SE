@@ -1,35 +1,94 @@
 version: '3.7'
 services:
 
-  eureka-server:
-    image: eureka-server:0.0.1-SNAPSHOT
+  rabbitmq:
+    image: rabbitmq:3.5.3-management
     ports:
-    - "8761:8761"
+      - "5672:5672"
+      - "15672:15672"
     restart: always
+    networks:
+      - currency-compose-network
+
+  naming-server:
+    #image: microservices/eureka-server:0.0.1-SNAPSHOT
+    build:
+      context: eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    restart: always
+    networks:
+      - currency-compose-network
+
+  zipkin-server:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    environment:
+      STORAGE_TYPE: mem
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672
+    ports:
+      - "9411:9411"
+    restart: always
+    depends_on:
+      - rabbitmq
+    networks:
+      - currency-compose-network
+
+
+  zuul-api:
+    image: microservices/zuul-api-gateway:0.0.1-SNAPSHOT
+    build:
+      context: zuul-api-gateway
+      dockerfile: Dockerfile
+    environment:
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672
+    ports:
+      - "8765:8765"
+    restart: always
+    depends_on:
+      - naming-server
+      - rabbitmq
+      - zipkin-server
     networks:
       - currency-compose-network
 
   currency-exchange-service:
-    image: currency-exchange-service:0.0.1-SNAPSHOT
+    #image: microservices/currency-exchange-service:0.0.1-SNAPSHOT
+    build:
+      context: currency-exchange-service
+      dockerfile: Dockerfile
+    environment:
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672
     ports:
       - "8000:8000"
     restart: always
     depends_on:
-
+      - naming-server
+      - rabbitmq
+      - zipkin-server
     networks:
       - currency-compose-network
 
   currency-conversion-service:
-    image: currency-conversion-service:0.0.1-SNAPSHOT
+    #image: microservices/currency-conversion-service:0.0.1-SNAPSHOT
+    build:
+      context: currency-conversion-service
+      dockerfile: Dockerfile
     ports:
       - "8100:8100"
     restart: always
+    environment:
+      #CURRENCY_EXCHANGE_URI: http://currency-exchange-service:8000
+      RABBIT_URI: amqp://guest:guest@rabbitmq:5672
     depends_on:
       - currency-exchange-service
-      - eureka-naming-server
+      - naming-server
+      - rabbitmq
+      - zipkin-server
     networks:
       - currency-compose-network
 
+# Networks to be created to facilitate communication between containers
 networks:
-    currency-compose-network:
-
+  currency-compose-network:
